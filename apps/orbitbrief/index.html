@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OrbitBrief Console — Live Space Operations MVP</title>
+  <meta name="description" content="OrbitBrief Console is a standalone micro-SaaS MVP dashboard using public space APIs for ISS telemetry, launch intelligence, NASA space feeds, and operator-style mission briefings.">
+  <link rel="canonical" href="https://ihtishamhussain.com/apps/orbitbrief/">
+  <style>
+    :root {
+      --bg: #050816;
+      --panel: rgba(14, 22, 46, 0.86);
+      --panel-strong: #111b38;
+      --line: rgba(118, 156, 255, 0.2);
+      --text: #eaf0ff;
+      --muted: #94a3c7;
+      --accent: #64d2ff;
+      --accent-2: #8b5cf6;
+      --green: #3ee58f;
+      --amber: #ffce5c;
+      --red: #ff5c7a;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(100, 210, 255, 0.2), transparent 28rem),
+        radial-gradient(circle at 85% 0%, rgba(139, 92, 246, 0.22), transparent 26rem),
+        linear-gradient(135deg, #030511 0%, #071026 48%, #060816 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    .app-shell {
+      width: min(100% - 32px, 1440px);
+      margin: 0 auto;
+      padding: 24px 0 42px;
+    }
+
+    .topbar,
+    .panel,
+    .metric,
+    .brief-card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-radius: 999px;
+      padding: 12px 16px 12px 22px;
+      margin-bottom: 24px;
+      position: sticky;
+      top: 12px;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .orb {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ffffff, var(--accent) 34%, #1b3c91 70%);
+      box-shadow: 0 0 32px rgba(100, 210, 255, 0.55);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill,
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .btn {
+      border: 0;
+      color: #03111d;
+      background: linear-gradient(135deg, var(--accent), #b5f3ff);
+      cursor: pointer;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+      gap: 22px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .hero-copy {
+      padding: 34px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(17, 27, 56, 0.9), rgba(7, 14, 35, 0.82)),
+        repeating-linear-gradient(90deg, transparent 0, transparent 42px, rgba(100, 210, 255, 0.04) 43px);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      max-width: 860px;
+      font-size: clamp(40px, 6vw, 78px);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+    }
+
+    .hero-copy p {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .mini {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .mini span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .mini strong {
+      font-size: 18px;
+    }
+
+    .earth-panel {
+      border-radius: var(--radius);
+      padding: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .earth-map {
+      height: 430px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(rgba(100, 210, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(100, 210, 255, 0.08) 1px, transparent 1px),
+        radial-gradient(circle at 50% 45%, rgba(80, 130, 255, 0.36), rgba(9, 18, 48, 0.9) 60%);
+      background-size: 42px 42px, 42px 42px, auto;
+      position: relative;
+    }
+
+    .iss-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 12px rgba(62, 229, 143, 0.12), 0 0 34px rgba(62, 229, 143, 0.85);
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      transition: left 0.6s ease, top 0.6s ease;
+    }
+
+    .orbit-line {
+      position: absolute;
+      inset: 22%;
+      border: 1px dashed rgba(100, 210, 255, 0.34);
+      border-radius: 50%;
+      transform: rotate(-18deg);
+    }
+
+    .map-caption {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
+      gap: 22px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .metric {
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .panel {
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel-header h2,
+    .panel-header h3 {
+      margin: 0 0 6px;
+    }
+
+    .panel-header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .feed {
+      display: grid;
+      gap: 12px;
+    }
+
+    .brief-card {
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: none;
+    }
+
+    .brief-card h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .brief-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 16px currentColor;
+      display: inline-block;
+    }
+
+    .status-dot.warn {
+      background: var(--amber);
+    }
+
+    .status-dot.fail {
+      background: var(--red);
+    }
+
+    .source-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 0;
+    }
+
+    .source-row:last-child {
+      border-bottom: 0;
+    }
+
+    .source-row span:nth-child(2) {
+      color: var(--muted);
+    }
+
+    .operator-note {
+      min-height: 220px;
+      border-radius: 18px;
+      padding: 18px;
+      background:
+        linear-gradient(135deg, rgba(100, 210, 255, 0.08), rgba(139, 92, 246, 0.08)),
+        rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .score-ring {
+      display: grid;
+      place-items: center;
+      width: 160px;
+      height: 160px;
+      margin: 8px auto 20px;
+      border-radius: 50%;
+      background: conic-gradient(var(--green) var(--score-angle, 230deg), rgba(255, 255, 255, 0.08) 0);
+      position: relative;
+    }
+
+    .score-ring::after {
+      content: "";
+      position: absolute;
+      inset: 13px;
+      border-radius: 50%;
+      background: #0b1329;
+    }
+
+    .score-ring strong {
+      position: relative;
+      z-index: 1;
+      font-size: 42px;
+    }
+
+    .select {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 9px 12px;
+    }
+
+    footer {
+      color: var(--muted);
+      text-align: center;
+      padding-top: 26px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1080px) {
+      .hero,
+      .layout,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .earth-map {
+        height: 340px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        border-radius: 22px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .hero-grid,
+      .map-caption {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="orb"></span>
+        <span>OrbitBrief Console</span>
+      </a>
+      <div class="nav-actions">
+        <span class="pill"><span class="status-dot" id="overallStatusDot"></span><span id="overallStatus">Syncing public feeds</span></span>
+        <button class="btn" type="button" id="refreshBtn">Refresh feeds</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Standalone Space Ops Micro-SaaS</p>
+          <h1>Live orbital intelligence for operator briefings.</h1>
+          <p>OrbitBrief Console combines public space APIs into a high-level mission dashboard: live ISS telemetry, upcoming launches, NASA space-weather signals, near-Earth object awareness, and an operator-style readiness score.</p>
+          <div class="hero-grid">
+            <div class="mini"><span>Deployment</span><strong>Cloudflare Pages</strong></div>
+            <div class="mini"><span>Data Mode</span><strong>Live APIs + fallback</strong></div>
+            <div class="mini"><span>Positioning</span><strong>DataSourceCode MVP</strong></div>
+          </div>
+        </div>
+
+        <aside class="panel earth-panel">
+          <div class="panel-header">
+            <div>
+              <h2>ISS Live Track</h2>
+              <p>Powered by WhereTheISS, refreshed on demand.</p>
+            </div>
+            <span class="pill" id="issAge">Waiting...</span>
+          </div>
+          <div class="earth-map" aria-label="Approximate ISS position map">
+            <div class="orbit-line"></div>
+            <div class="iss-dot" id="issDot"></div>
+          </div>
+          <div class="map-caption">
+            <div class="mini"><span>Latitude</span><strong id="issLat">--</strong></div>
+            <div class="mini"><span>Longitude</span><strong id="issLon">--</strong></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="metrics">
+        <article class="metric"><span>Readiness Score</span><strong id="readinessMetric">--</strong></article>
+        <article class="metric"><span>Upcoming Launches</span><strong id="launchMetric">--</strong></article>
+        <article class="metric"><span>Space Alerts</span><strong id="alertMetric">--</strong></article>
+        <article class="metric"><span>API Sources</span><strong id="sourceMetric">4</strong></article>
+      </section>
+
+      <section class="layout">
+        <div>
+          <section class="panel" style="margin-bottom: 22px;">
+            <div class="panel-header">
+              <div>
+                <h2>Mission Briefing Feed</h2>
+                <p>Aggregated launch, orbital, space-weather, and NEO awareness cards.</p>
+              </div>
+              <select class="select" id="feedFilter">
+                <option value="all">All signals</option>
+                <option value="launch">Launches</option>
+                <option value="weather">Space weather</option>
+                <option value="neo">NEO awareness</option>
+              </select>
+            </div>
+            <div class="feed" id="briefingFeed"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Public API Source Health</h2>
+                <p>Designed for free hosting. If a source rate-limits or blocks CORS, OrbitBrief uses safe fallback data.</p>
+              </div>
+            </div>
+            <div id="sourceHealth"></div>
+          </section>
+        </div>
+
+        <aside>
+          <section class="panel" style="margin-bottom: 22px;">
+            <div class="panel-header">
+              <div>
+                <h3>Operator Readiness</h3>
+                <p>Calculated from current feed availability and signal intensity.</p>
+              </div>
+            </div>
+            <div class="score-ring" id="scoreRing"><strong id="scoreValue">--</strong></div>
+            <div class="operator-note" id="operatorNote">Building briefing from public space feeds...</div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>Interview Story</h3>
+                <p>How to explain it in 30 seconds.</p>
+              </div>
+            </div>
+            <div class="operator-note">
+              OrbitBrief is a standalone dashboard MVP, not a certified collision-avoidance system. It demonstrates how I turn public domain data into an operator workflow: fetch multiple APIs, normalize signals, handle failures gracefully, calculate a useful product metric, and present a clear briefing UI.
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <footer>
+      Built by Ihtisham Hussain as a DataSourceCode side-project MVP. Public feeds: WhereTheISS, Launch Library 2, NASA APIs. Not for operational safety decisions.
+    </footer>
+  </div>
+
+  <script>
+    const NASA_KEY = "DEMO_KEY";
+    const state = {
+      sources: {
+        iss: { label: "WhereTheISS", status: "loading", detail: "Live ISS telemetry" },
+        launches: { label: "Launch Library 2", status: "loading", detail: "Upcoming launches" },
+        donki: { label: "NASA DONKI", status: "loading", detail: "Space weather notifications" },
+        neo: { label: "NASA NeoWs", status: "loading", detail: "Near-Earth object awareness" }
+      },
+      iss: null,
+      launches: [],
+      alerts: [],
+      neos: [],
+      fallbackUsed: false
+    };
+
+    const fallback = {
+      iss: { latitude: 42.1, longitude: 12.5, velocity: 27580, timestamp: Date.now() / 1000 },
+      launches: [
+        { name: "Sentinel operations demo launch", provider: "ESA / Demo", window_start: new Date(Date.now() + 86400000 * 2).toISOString(), status: { name: "Go" } },
+        { name: "SmallSat rideshare briefing", provider: "Commercial / Demo", window_start: new Date(Date.now() + 86400000 * 5).toISOString(), status: { name: "TBD" } }
+      ],
+      alerts: [
+        { messageType: "GST", messageIssueTime: new Date().toISOString(), messageBody: "Fallback: geomagnetic storm feed unavailable; use normal monitoring posture." }
+      ],
+      neos: [
+        { name: "Demo NEO-2026", estimated_diameter: { meters: { estimated_diameter_max: 120 } }, is_potentially_hazardous_asteroid: false }
+      ]
+    };
+
+    const endpoints = {
+      iss: "https://api.wheretheiss.at/v1/satellites/25544",
+      launches: "https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=5&mode=list",
+      donki: `https://api.nasa.gov/DONKI/notifications?type=all&api_key=${NASA_KEY}`,
+      neo: `https://api.nasa.gov/neo/rest/v1/neo/browse?api_key=${NASA_KEY}`
+    };
+
+    function setSource(key, status, detail) {
+      state.sources[key].status = status;
+      if (detail) state.sources[key].detail = detail;
+    }
+
+    async function getJson(key, url) {
+      setSource(key, "loading");
+      try {
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        setSource(key, "live", "Live feed connected");
+        return data;
+      } catch (error) {
+        state.fallbackUsed = true;
+        setSource(key, "fallback", error.message || "Fallback data used");
+        return null;
+      }
+    }
+
+    async function refresh() {
+      document.getElementById("overallStatus").textContent = "Syncing public feeds";
+      document.getElementById("overallStatusDot").className = "status-dot warn";
+
+      const [iss, launches, donki, neo] = await Promise.all([
+        getJson("iss", endpoints.iss),
+        getJson("launches", endpoints.launches),
+        getJson("donki", endpoints.donki),
+        getJson("neo", endpoints.neo)
+      ]);
+
+      state.iss = iss || fallback.iss;
+      state.launches = normalizeLaunches(launches) || fallback.launches;
+      state.alerts = normalizeAlerts(donki) || fallback.alerts;
+      state.neos = normalizeNeos(neo) || fallback.neos;
+
+      render();
+    }
+
+    function normalizeLaunches(payload) {
+      const results = payload?.results;
+      if (!Array.isArray(results) || !results.length) return null;
+      return results.map((launch) => ({
+        name: launch.name,
+        provider: launch.launch_service_provider?.name || "Unknown provider",
+        window_start: launch.window_start,
+        status: { name: launch.status?.name || "Unknown" }
+      }));
+    }
+
+    function normalizeAlerts(payload) {
+      if (!Array.isArray(payload) || !payload.length) return null;
+      return payload.slice(0, 5).map((alert) => ({
+        messageType: alert.messageType || "NASA",
+        messageIssueTime: alert.messageIssueTime || alert.messageURL || new Date().toISOString(),
+        messageBody: (alert.messageBody || "NASA space-weather notification available.").slice(0, 260)
+      }));
+    }
+
+    function normalizeNeos(payload) {
+      const neos = payload?.near_earth_objects;
+      if (!Array.isArray(neos) || !neos.length) return null;
+      return neos.slice(0, 5);
+    }
+
+    function readinessScore() {
+      const liveSources = Object.values(state.sources).filter((source) => source.status === "live").length;
+      const criticalAlerts = state.alerts.filter((alert) => /CME|GST|SEP|FLR/i.test(alert.messageType)).length;
+      const hazardousNeos = state.neos.filter((neo) => neo.is_potentially_hazardous_asteroid).length;
+      return Math.max(42, Math.min(98, 62 + liveSources * 8 - criticalAlerts * 4 - hazardousNeos * 3));
+    }
+
+    function render() {
+      renderIss();
+      renderMetrics();
+      renderFeed();
+      renderSources();
+      renderOperatorNote();
+    }
+
+    function renderIss() {
+      const iss = state.iss;
+      const lat = Number(iss.latitude);
+      const lon = Number(iss.longitude);
+      const left = ((lon + 180) / 360) * 100;
+      const top = ((90 - lat) / 180) * 100;
+      document.getElementById("issDot").style.left = `${Math.max(3, Math.min(97, left))}%`;
+      document.getElementById("issDot").style.top = `${Math.max(3, Math.min(97, top))}%`;
+      document.getElementById("issLat").textContent = `${lat.toFixed(3)}°`;
+      document.getElementById("issLon").textContent = `${lon.toFixed(3)}°`;
+      document.getElementById("issAge").textContent = `Velocity ${Math.round(iss.velocity || 27580).toLocaleString()} km/h`;
+    }
+
+    function renderMetrics() {
+      const score = readinessScore();
+      document.getElementById("readinessMetric").textContent = `${score}%`;
+      document.getElementById("launchMetric").textContent = state.launches.length;
+      document.getElementById("alertMetric").textContent = state.alerts.length;
+      document.getElementById("scoreValue").textContent = score;
+      document.getElementById("scoreRing").style.setProperty("--score-angle", `${score * 3.6}deg`);
+      document.getElementById("overallStatus").textContent = state.fallbackUsed ? "Live with fallback safeguards" : "All feeds live";
+      document.getElementById("overallStatusDot").className = `status-dot ${state.fallbackUsed ? "warn" : ""}`;
+    }
+
+    function renderFeed() {
+      const filter = document.getElementById("feedFilter").value;
+      const cards = [];
+
+      state.launches.forEach((launch) => cards.push({
+        type: "launch",
+        title: launch.name,
+        meta: `${launch.provider} | ${formatDate(launch.window_start)} | ${launch.status.name}`,
+        body: "Upcoming launch signal for mission-awareness and operational planning."
+      }));
+
+      state.alerts.forEach((alert) => cards.push({
+        type: "weather",
+        title: `NASA ${alert.messageType} notification`,
+        meta: formatDate(alert.messageIssueTime),
+        body: alert.messageBody
+      }));
+
+      state.neos.slice(0, 4).forEach((neo) => cards.push({
+        type: "neo",
+        title: neo.name,
+        meta: neo.is_potentially_hazardous_asteroid ? "Potentially hazardous flag" : "Awareness only",
+        body: `Estimated max diameter: ${Math.round(neo.estimated_diameter?.meters?.estimated_diameter_max || 0)} meters.`
+      }));
+
+      const visible = cards.filter((card) => filter === "all" || card.type === filter);
+      document.getElementById("briefingFeed").innerHTML = visible.map((card) => `
+        <article class="brief-card">
+          <p class="eyebrow">${card.type}</p>
+          <h4>${escapeHtml(card.title)}</h4>
+          <p style="margin-bottom: 8px;">${escapeHtml(card.meta)}</p>
+          <p>${escapeHtml(card.body)}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderSources() {
+      document.getElementById("sourceHealth").innerHTML = Object.entries(state.sources).map(([_, source]) => {
+        const dotClass = source.status === "live" ? "" : source.status === "loading" ? "warn" : "fail";
+        return `
+          <div class="source-row">
+            <span class="status-dot ${dotClass}"></span>
+            <span>${source.label}<br><small>${source.detail}</small></span>
+            <strong>${source.status}</strong>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderOperatorNote() {
+      const score = readinessScore();
+      const nextLaunch = state.launches[0];
+      const alertText = state.alerts.length ? `${state.alerts.length} NASA notification(s)` : "no current NASA notifications";
+      document.getElementById("operatorNote").innerHTML = `
+        <strong style="color: var(--text);">Briefing summary:</strong><br>
+        OrbitBrief rates the current readiness picture at <strong style="color: var(--green);">${score}%</strong>.
+        The ISS position feed is mapped live when available. The next launch signal is
+        <strong style="color: var(--text);">${escapeHtml(nextLaunch?.name || "not available")}</strong>.
+        Current space-weather awareness includes ${alertText}. This console is built for portfolio demonstration and product discovery, not operational safety decisions.
+      `;
+    }
+
+    function formatDate(value) {
+      if (!value) return "Time unavailable";
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? String(value).slice(0, 80) : date.toLocaleString();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    document.getElementById("refreshBtn").addEventListener("click", refresh);
+    document.getElementById("feedFilter").addEventListener("change", renderFeed);
+    refresh();
+  </script>
+</body>
+</html>
