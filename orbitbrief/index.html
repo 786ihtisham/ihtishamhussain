@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OrbitBrief — Satellite Operations Briefing MVP</title>
+  <meta name="description" content="OrbitBrief is a DataSourceCode micro-SaaS MVP for simulated satellite operations briefings and conjunction-risk review. Built with Angular/TypeScript and Java/Spring Boot concepts.">
+  <link rel="canonical" href="https://ihtishamhussain.com/orbitbrief/">
+  <meta property="og:title" content="OrbitBrief — Satellite Operations Briefing MVP">
+  <meta property="og:description" content="A simulated satellite-operations dashboard for conjunction-risk review, operator notes, and full-stack Angular/Java portfolio storytelling.">
+  <meta property="og:url" content="https://ihtishamhussain.com/orbitbrief/">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    .product-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: 2rem;
+      align-items: center;
+      padding: 4.5rem 0 2rem;
+    }
+
+    .product-panel,
+    .metric,
+    .event-detail,
+    .tech-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .product-panel {
+      padding: 1.5rem;
+    }
+
+    .product-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .demo-badge,
+    .risk-badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 0.3rem 0.7rem;
+      text-transform: uppercase;
+    }
+
+    .demo-badge {
+      background: #fff2cc;
+      color: #8a5b00;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .metric {
+      padding: 1rem;
+    }
+
+    .metric span {
+      color: var(--muted);
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+
+    .briefing-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.85fr);
+      gap: 1.5rem;
+    }
+
+    .filters {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin: 0 0 1rem;
+    }
+
+    .filters button {
+      background: #eef6fb;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      padding: 0.45rem 0.9rem;
+    }
+
+    .filters button.active {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .event-list {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .event-row {
+      align-items: center;
+      background: #fbfdff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: 1fr auto;
+      padding: 0.9rem;
+    }
+
+    .event-row:hover,
+    .event-row.active {
+      border-color: rgba(0, 155, 223, 0.45);
+      box-shadow: 0 10px 24px rgba(0, 155, 223, 0.08);
+    }
+
+    .event-row h4,
+    .event-row p {
+      margin: 0;
+    }
+
+    .event-row p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .risk-badge.critical {
+      background: #ffe4e0;
+      color: #b42318;
+    }
+
+    .risk-badge.watch {
+      background: #fff2cc;
+      color: #8a5b00;
+    }
+
+    .risk-badge.low {
+      background: #dcfae6;
+      color: #067647;
+    }
+
+    .event-detail {
+      padding: 1.25rem;
+    }
+
+    .event-detail dl {
+      display: grid;
+      gap: 0.85rem;
+      margin: 1rem 0;
+    }
+
+    .event-detail dt {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .event-detail dd {
+      margin: 0;
+    }
+
+    .decision-box {
+      background: #f6f8fa;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+      padding: 0.9rem;
+    }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .tech-card {
+      padding: 1.25rem;
+    }
+
+    .tech-card h3 {
+      margin-top: 0;
+    }
+
+    @media (max-width: 900px) {
+      .product-hero,
+      .briefing-grid,
+      .tech-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">Ihtisham Hussain</a>
+      <button class="nav-toggle" aria-label="Menu">☰</button>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/services/">Services</a></li>
+        <li><a href="/portfolio/" class="active">Portfolio</a></li>
+        <li><a href="/contact/">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main>
+    <section class="container product-hero">
+      <div>
+        <p class="eyebrow">DataSourceCode Micro-SaaS MVP</p>
+        <h1>OrbitBrief</h1>
+        <p class="subtitle">Satellite-operations briefing and simulated conjunction-risk review dashboard.</p>
+        <p>OrbitBrief is a portfolio-grade full-stack MVP inspired by public SSA/STM workflows: satellites, conjunction events, risk classifications, operator decisions, and API-driven dashboards. The public demo uses simulated data and is hosted free on Cloudflare Pages.</p>
+        <div style="margin-top: 2rem;">
+          <a class="btn btn-primary" href="#demo">Try demo</a>
+          <a class="btn btn-outline" href="https://github.com/786ihtisham/orbitbrief">View GitHub</a>
+        </div>
+      </div>
+      <div class="product-panel">
+        <div class="product-panel-header">
+          <strong>Daily Orbit Briefing</strong>
+          <span class="demo-badge">Simulated Data</span>
+        </div>
+        <p style="color: var(--muted); margin-bottom: 1rem;">A concise operator view for reviewing upcoming conjunction-risk events.</p>
+        <div class="metrics" style="grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0;">
+          <div class="metric"><span>Satellites</span><strong>3</strong></div>
+          <div class="metric"><span>Events</span><strong>5</strong></div>
+          <div class="metric"><span>Critical</span><strong style="color:#b42318;">2</strong></div>
+          <div class="metric"><span>Reviewed</span><strong>1</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo" class="container">
+      <h2 class="section-title">Interactive MVP Demo</h2>
+      <p class="section-lead">This static Cloudflare Pages demo mirrors the Angular/Java MVP workflow using simulated data. The full project source is structured for an Angular frontend and Spring Boot REST backend.</p>
+
+      <div class="metrics">
+        <div class="metric"><span>Total satellites</span><strong id="metricSatellites">3</strong></div>
+        <div class="metric"><span>Total events</span><strong id="metricEvents">5</strong></div>
+        <div class="metric"><span>Critical events</span><strong id="metricCritical" style="color:#b42318;">2</strong></div>
+        <div class="metric"><span>Reviewed events</span><strong id="metricReviewed">1</strong></div>
+      </div>
+
+      <div class="briefing-grid">
+        <div class="product-panel">
+          <div class="product-panel-header">
+            <div>
+              <h3 style="margin: 0;">Conjunction Review Queue</h3>
+              <p style="margin: 0; color: var(--muted);">Filter events by risk and inspect the operator decision context.</p>
+            </div>
+          </div>
+          <div class="filters" aria-label="Risk filters">
+            <button type="button" class="active" data-filter="ALL">All</button>
+            <button type="button" data-filter="CRITICAL">Critical</button>
+            <button type="button" data-filter="TO_BE_OBSERVED">To be observed</button>
+            <button type="button" data-filter="NON_CRITICAL">Non-critical</button>
+          </div>
+          <div id="eventList" class="event-list"></div>
+        </div>
+
+        <aside id="eventDetail" class="event-detail"></aside>
+      </div>
+    </section>
+
+    <section class="container">
+      <h2 class="section-title">How It Was Built</h2>
+      <p class="section-lead">OrbitBrief is intentionally scoped as a safe public MVP: workflow and integration layer only, not a certified flight-dynamics or collision-avoidance engine.</p>
+      <div class="tech-grid">
+        <article class="tech-card">
+          <h3>Frontend</h3>
+          <p>Angular/TypeScript dashboard concept with typed models, filters, risk badges, detail views, and review states.</p>
+        </article>
+        <article class="tech-card">
+          <h3>Backend</h3>
+          <p>Java/Spring Boot REST API design for satellites, daily briefing summaries, conjunction filtering, and review actions.</p>
+        </article>
+        <article class="tech-card">
+          <h3>Product</h3>
+          <p>Micro-SaaS case study under DataSourceCode, built to show domain learning, API thinking, and user-focused dashboard design.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>OrbitBrief by DataSourceCode</h3>
+        <p>A simulated satellite-operations briefing MVP by Ihtisham Hussain.</p>
+      </div>
+      <div>
+        <h3>Project Links</h3>
+        <ul>
+          <li><a href="/portfolio/">Portfolio</a></li>
+          <li><a href="https://github.com/786ihtisham/orbitbrief">GitHub repository</a></li>
+          <li><a href="https://datasourcecode.com">DataSourceCode.com</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Important Note</h3>
+        <p>This MVP uses simulated data and is not intended for operational satellite safety decisions.</p>
+      </div>
+    </div>
+    <p class="copyright container">© 2026 Ihtisham Hussain. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const events = [
+      {
+        id: "conj-1",
+        satellite: "AdeptSat-1",
+        object: "DEBRIS-4421",
+        tca: "2026-06-20T14:30:00Z",
+        missDistance: "82.4 m",
+        probability: "0.00016",
+        risk: "CRITICAL",
+        action: "Review radial avoidance manoeuvre candidate.",
+        reviewed: false,
+        note: "Open event. Escalate during the next simulated briefing."
+      },
+      {
+        id: "conj-2",
+        satellite: "AdeptSat-1",
+        object: "COSMOS-2251 FRAGMENT",
+        tca: "2026-06-21T09:15:00Z",
+        missDistance: "430.0 m",
+        probability: "0.00004",
+        risk: "TO_BE_OBSERVED",
+        action: "Keep event on watch list until the next catalogue update.",
+        reviewed: false,
+        note: "Awaiting updated simulated catalogue data."
+      },
+      {
+        id: "conj-3",
+        satellite: "OWL-Cube-2",
+        object: "STARLINK-3182",
+        tca: "2026-06-22T18:45:00Z",
+        missDistance: "1280.5 m",
+        probability: "0.000003",
+        risk: "NON_CRITICAL",
+        action: "No action required for the current briefing.",
+        reviewed: true,
+        note: "Reviewed as non-critical simulated event."
+      },
+      {
+        id: "conj-4",
+        satellite: "MunichOps-3",
+        object: "DEBRIS-9007",
+        tca: "2026-06-23T04:10:00Z",
+        missDistance: "96.8 m",
+        probability: "0.00012",
+        risk: "CRITICAL",
+        action: "Escalate to flight dynamics review.",
+        reviewed: false,
+        note: "Open critical event in the simulated review queue."
+      },
+      {
+        id: "conj-5",
+        satellite: "OWL-Cube-2",
+        object: "OBJECT-7719",
+        tca: "2026-06-24T11:55:00Z",
+        missDistance: "760.2 m",
+        probability: "0.00002",
+        risk: "TO_BE_OBSERVED",
+        action: "Wait for updated catalogue data.",
+        reviewed: false,
+        note: "Monitor in next daily briefing."
+      }
+    ];
+
+    const label = {
+      CRITICAL: "Critical",
+      TO_BE_OBSERVED: "To be observed",
+      NON_CRITICAL: "Non-critical"
+    };
+
+    const badgeClass = {
+      CRITICAL: "critical",
+      TO_BE_OBSERVED: "watch",
+      NON_CRITICAL: "low"
+    };
+
+    let activeFilter = "ALL";
+    let selectedId = events[0].id;
+
+    function filteredEvents() {
+      return activeFilter === "ALL" ? events : events.filter((event) => event.risk === activeFilter);
+    }
+
+    function renderList() {
+      const list = document.getElementById("eventList");
+      list.innerHTML = "";
+
+      filteredEvents().forEach((event) => {
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = `event-row ${event.id === selectedId ? "active" : ""}`;
+        row.innerHTML = `
+          <div>
+            <h4>${event.satellite} vs ${event.object}</h4>
+            <p>TCA ${new Date(event.tca).toLocaleString()} | Miss distance ${event.missDistance}</p>
+          </div>
+          <span class="risk-badge ${badgeClass[event.risk]}">${label[event.risk]}</span>
+        `;
+        row.addEventListener("click", () => {
+          selectedId = event.id;
+          render();
+        });
+        list.appendChild(row);
+      });
+    }
+
+    function renderDetail() {
+      const event = events.find((item) => item.id === selectedId) || filteredEvents()[0] || events[0];
+      selectedId = event.id;
+      document.getElementById("eventDetail").innerHTML = `
+        <span class="risk-badge ${badgeClass[event.risk]}">${label[event.risk]}</span>
+        <h3 style="margin-bottom: 0.5rem;">${event.satellite}</h3>
+        <p style="color: var(--muted); margin-top: 0;">Conjunction with ${event.object}</p>
+        <dl>
+          <div><dt>Time of closest approach</dt><dd>${new Date(event.tca).toLocaleString()}</dd></div>
+          <div><dt>Miss distance</dt><dd>${event.missDistance}</dd></div>
+          <div><dt>Collision probability</dt><dd>${event.probability}</dd></div>
+          <div><dt>Recommended action</dt><dd>${event.action}</dd></div>
+          <div><dt>Review status</dt><dd>${event.reviewed ? "Reviewed" : "Open"}</dd></div>
+        </dl>
+        <div class="decision-box">${event.note}</div>
+      `;
+    }
+
+    function renderMetrics() {
+      document.getElementById("metricEvents").textContent = events.length;
+      document.getElementById("metricCritical").textContent = events.filter((event) => event.risk === "CRITICAL").length;
+      document.getElementById("metricReviewed").textContent = events.filter((event) => event.reviewed).length;
+    }
+
+    function render() {
+      if (!filteredEvents().some((event) => event.id === selectedId)) {
+        selectedId = filteredEvents()[0]?.id || events[0].id;
+      }
+      renderMetrics();
+      renderList();
+      renderDetail();
+    }
+
+    document.querySelectorAll("[data-filter]").forEach((button) => {
+      button.addEventListener("click", () => {
+        activeFilter = button.getAttribute("data-filter");
+        document.querySelectorAll("[data-filter]").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        render();
+      });
+    });
+
+    render();
+  </script>
+  <script src="/assets/site.js"></script>
+</body>
+</html>

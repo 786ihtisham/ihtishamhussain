@@ -216,6 +216,24 @@ section {
   color: var(--muted);
 }
 
+.featured-mvp-card {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.featured-mvp-stats {
+  background: #eef6fb;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.featured-mvp-stats > div {
+  display: grid;
+  gap: 0.8rem;
+}
+
 .icon {
   font-size: 2rem;
   color: var(--accent);
@@ -430,7 +448,8 @@ section {
 @media (max-width: 900px) {
   .hero,
   .contact-grid,
-  .footer-grid {
+  .footer-grid,
+  .featured-mvp-card {
     grid-template-columns: 1fr;
   }
 
