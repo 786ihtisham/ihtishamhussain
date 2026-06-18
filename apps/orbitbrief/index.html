@@ -365,6 +365,49 @@
       line-height: 1.7;
     }
 
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .guide-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.045);
+      color: var(--text);
+      display: block;
+      padding: 16px;
+      transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+    }
+
+    .guide-card:hover {
+      border-color: rgba(100, 210, 255, 0.65);
+      background: rgba(100, 210, 255, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .guide-card span {
+      color: var(--accent);
+      display: block;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .guide-card strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .guide-card p {
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.55;
+    }
+
     .score-ring {
       display: grid;
       place-items: center;
@@ -541,6 +584,58 @@
             </div>
           </section>
         </aside>
+      </section>
+
+      <section class="panel" style="margin-top: 22px;">
+        <div class="panel-header">
+          <div>
+            <h2>Explore OrbitBrief Space Guides</h2>
+            <p>Deep-dive explainers, topic pages, and SEO-friendly space intelligence resources connected to this console.</p>
+          </div>
+          <a class="pill" href="/space/topics/">100+ topics</a>
+        </div>
+        <div class="guide-grid">
+          <a class="guide-card" href="/space/">
+            <span>Hub</span>
+            <strong>Space Mission Intelligence Hub</strong>
+            <p>Start with the main OrbitBrief guide library and explore the full content map.</p>
+          </a>
+          <a class="guide-card" href="/space/iss-tracker/">
+            <span>Tracking</span>
+            <strong>Live ISS Tracker</strong>
+            <p>Understand ISS latitude, longitude, orbital motion, and ground tracks.</p>
+          </a>
+          <a class="guide-card" href="/space/upcoming-rocket-launches/">
+            <span>Launches</span>
+            <strong>Upcoming Rocket Launches</strong>
+            <p>Learn how launch windows, providers, and mission statuses fit a briefing dashboard.</p>
+          </a>
+          <a class="guide-card" href="/space/space-weather-dashboard/">
+            <span>Space Weather</span>
+            <strong>Space Weather Dashboard</strong>
+            <p>Read solar activity, geomagnetic storms, and satellite impact signals in plain language.</p>
+          </a>
+          <a class="guide-card" href="/space/near-earth-objects/">
+            <span>NEO</span>
+            <strong>Near-Earth Objects</strong>
+            <p>Explore asteroid close approach awareness without sensational wording.</p>
+          </a>
+          <a class="guide-card" href="/space/space-situational-awareness/">
+            <span>SSA</span>
+            <strong>Space Situational Awareness</strong>
+            <p>Learn how object tracking and environmental signals become mission awareness.</p>
+          </a>
+          <a class="guide-card" href="/space/space-traffic-management/">
+            <span>STM</span>
+            <strong>Space Traffic Management</strong>
+            <p>Understand coordination, sustainability, and responsible orbital activity.</p>
+          </a>
+          <a class="guide-card" href="/space/topics/">
+            <span>Library</span>
+            <strong>100+ OrbitBrief Topics</strong>
+            <p>Browse long-tail guides for APIs, CubeSats, dashboards, alerts, and space education.</p>
+          </a>
+        </div>
       </section>
     </main>
 
